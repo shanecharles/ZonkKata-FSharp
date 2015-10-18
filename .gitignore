@@ -1,0 +1,7 @@
+packages/
+obj/
+bin/
+*.userprefs
+*.swp
+*.*~
+*.*.suo
