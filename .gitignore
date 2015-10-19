@@ -5,3 +5,6 @@ bin/
 *.swp
 *.*~
 *.*.suo
+build/
+tests/
+.fake/

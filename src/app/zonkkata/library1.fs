@@ -1,4 +1,5 @@
 ﻿namespace ZonkKata
 
-type Class1() = 
-    member this.X = "F#"
+module Roll =
+    let CalculatePoints d =
+        0
