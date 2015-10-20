@@ -4,3 +4,4 @@ nuget fake
 nuget xunit
 nuget fscheck.xunit
 nuget unquote
+nuget xunit.runner.console

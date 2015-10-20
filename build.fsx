@@ -1,5 +1,6 @@
 #r "packages/FAKE/tools/fakelib.dll"
 
+open Fake.Testing.XUnit2
 open Fake
 
 let buildDir = "./build/"
@@ -21,6 +22,11 @@ Target "BuildTest" (fun _ ->
       |> Log "TestBuild-Output: "
 )
 
+Target "RunTests" (fun _ ->
+    !! (testDir @@ "/*.Tests.dll")
+      |> xUnit2 (fun p -> {p with HtmlOutputPath = Some (testDir @@ "xunit.html")})
+)
+
 Target "Default" (fun _ ->
     trace "Build from fake"
 )
@@ -28,6 +34,7 @@ Target "Default" (fun _ ->
 "Clean"
   ==> "BuildApp"
   ==> "BuildTest"
+  ==> "RunTests"
   ==> "Default"
 
 RunTargetOrDefault "Default"
