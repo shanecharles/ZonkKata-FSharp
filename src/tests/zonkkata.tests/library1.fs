@@ -15,3 +15,9 @@ module BigRoller =
         let expected = 1500
         let actual = [1 .. 6] |> ZonkKata.Roll.CalculatePoints
         test <@ expected = actual @>
+
+    [<Fact>]
+    let ``A roll with no points should return zero points.`` () =
+        let expected = 0
+        let actual = [2; 2; 3; 4; 4; 6] |> ZonkKata.Roll.CalculatePoints
+        test <@ expected = actual @>
