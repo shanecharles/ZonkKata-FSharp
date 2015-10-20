@@ -11,7 +11,7 @@ module BigRoller =
         test <@ expected <= actual @>
 
     [<Fact>]
-    let ``A roll of 1 - 6 should return 1500 points.`` () =
+    let ``A roll of 1 through 6 should return 1500 points.`` () =
         let expected = 1500
         let actual = [1 .. 6] |> ZonkKata.Roll.CalculatePoints
         test <@ expected = actual @>
