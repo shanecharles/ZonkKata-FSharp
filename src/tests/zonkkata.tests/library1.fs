@@ -16,6 +16,8 @@ module Common =
                                                    | _    -> elem :: acc
                                         (nth, (i+1), acc')) (n, 0, [])
                         |> (fun (_,_,l') -> l' |> List.rev)
+    
+    let getAndRemoveNth l n = (n |> List.nth l, n |> removeNth l)
 
     let zonkRoll () = 
         let pool = [2; 2; 3; 3; 4; 4; 6; 6]
@@ -40,10 +42,28 @@ type ZonkRoll =
         let g = gen {
             return Common.zonkRoll ()
         }
-        g 
-        |> Arb.fromGen
+        g |> Arb.fromGen
 
-type ZonkPropertyAttribute () =
+type ThreePairsRoll =
+    static member Roll() =
+        let g = gen {
+            let choose l = Gen.choose (0 , l |> Seq.length)
+            let! i1 = Gen.choose (0, 5)
+            let! i2 = Gen.choose (0, 4)
+            let! i3 = Gen.choose (0, 3)
+            let (n1, l1) = Common.getAndRemoveNth [1 .. 6] i1
+            let (n2, l2) = Common.getAndRemoveNth l1 i2
+            let n3 = i3 |> List.nth l2
+
+            return [n1; n1; n2; n2; n3; n3]
+        }
+        g |> Arb.fromGen
+
+type ThreePairsRollPropertyAttribute () =
+    inherit PropertyAttribute (
+        Arbitrary = [| typeof<ThreePairsRoll> |])
+
+type ZonkRollPropertyAttribute () =
     inherit PropertyAttribute (
         Arbitrary = [| typeof<ZonkRoll> |])
                     
@@ -84,24 +104,30 @@ module BigRoller =
         let actual = roll |> ZonkKata.Roll.CalculatePoints
         test <@ expected = actual @>
 
-    [<ZonkProperty>]
+    [<ZonkRollProperty>]
     let ``A roll with no points should return zero points.`` (roll : int list) =
         let expected = 0
         let actual = roll |> ZonkKata.Roll.CalculatePoints
         test <@ expected = actual @>
 
-    [<ZonkProperty>]
+    [<ZonkRollProperty>]
     let ``A zonk roll should always have 4 unique digits.`` (roll : int list) =
         let expected = 4
         let actual = roll |> Seq.distinct |> Seq.length
         test <@ expected = actual @>
 
-    [<ZonkProperty>]
+    [<ZonkRollProperty>]
     let ``A zonk roll should contain no ones.`` (roll : int list) =
         let actual = roll |> Seq.filter (fun x -> x = 1)
         test <@ actual |> Seq.isEmpty @>
 
-    [<ZonkProperty>]
+    [<ZonkRollProperty>]
     let ``A zonk roll should contain no fives.`` (roll : int list) =
         let actual = roll |> Seq.filter (fun x -> x = 5)
         test <@ actual |> Seq.isEmpty @>
+
+    [<ThreePairsRollProperty>]
+    let ``A roll of any three pairs should score 750 points.`` (roll : int list) =
+        let expected = 750
+        let actual = roll |> ZonkKata.Roll.CalculatePoints
+        test <@ expected = actual @>
