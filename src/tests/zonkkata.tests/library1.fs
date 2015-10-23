@@ -178,7 +178,18 @@ module BigRoller =
         test <@ expected >= actual @>
 
     [<Fact>]
-    let ``Three ones should score 100 points.`` () =
-        let expected = 100
+    let ``Three ones should score 1000 points.`` () =
+        let expected = 1000
         let actual = 1 |> ZonkKata.Roll.ThreeOfAKindPoints
+        test <@ expected = actual @>
+
+    [<Theory>]
+    [<InlineData(2)>]
+    [<InlineData(3)>]
+    [<InlineData(4)>]
+    [<InlineData(5)>]
+    [<InlineData(6)>]
+    let ``Three of a number other than one should score face value * 100 points.`` n =
+        let expected = n * 100
+        let actual = n |> ZonkKata.Roll.ThreeOfAKindPoints
         test <@ expected = actual @>
