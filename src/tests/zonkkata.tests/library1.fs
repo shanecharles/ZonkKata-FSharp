@@ -166,7 +166,13 @@ module BigRoller =
         test <@ expected = actual @>
 
     [<OneOrFiveRollProperty>]
-    let ``A roll with no big points should be more than zero.`` (roll : int list) =
+    let ``A roll with no big points should be more than zero points.`` (roll : int list) =
         let expected = 0
         let actual = roll |> ZonkKata.Roll.CalculatePoints
         test <@ expected < actual @>
+
+    [<OneOrFiveRollProperty>]
+    let ``A roll with no big points should count no more than 300 points.`` (roll : int list) =
+        let expected = 300
+        let actual = roll |> ZonkKata.Roll.CalculatePoints
+        test <@ expected >= actual @>
