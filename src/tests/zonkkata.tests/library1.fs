@@ -9,6 +9,8 @@ open FsCheck.Xunit
 module Common = 
     let rand = new Random()
 
+    let excludeNumber n = seq { for i in 1..6 do if i <> n then yield i }
+
     let removeNth l n = l 
                         |> List.fold (fun (nth, i, acc) elem -> 
                                         let acc' = match nth = i with 
@@ -18,6 +20,26 @@ module Common =
                         |> (fun (_,_,l') -> l' |> List.rev)
     
     let getAndRemoveNth l n = (n |> List.nth l, n |> removeNth l)
+
+    let oneOrFiveRoll () =
+        let pool = [1 .. 6] @ [1 .. 6]
+        let rec nextDie rem avail =
+            match rem with 
+            | 1 -> avail
+                |> Seq.groupBy (id)
+                |> Seq.choose (fun (x,s) -> if s |> Seq.length > 1 then Some x else None)
+                |> Seq.toList
+                |> fun pairs -> match pairs with
+                                | [p] -> let dice = p |> excludeNumber |> Seq.toList
+                                         [rand.Next(dice |> List.length) |> List.nth dice]
+                                | _   -> 
+                                    let p = match pairs |> List.filter (fun x -> x = 1 || x = 5) |> List.sortBy (id) with
+                                            | [1; 5] -> [1; 5]
+                                            | _      -> pairs
+                                    [rand.Next(p |> List.length) |> List.nth p]
+            | _ -> let (n, avail') = rand.Next(avail |> Seq.length) |> getAndRemoveNth avail
+                   n :: (nextDie (rem-1) avail')
+        nextDie 6 pool
 
     let zonkRoll () = 
         let pool = [2; 2; 3; 3; 4; 4; 6; 6]
@@ -59,6 +81,17 @@ type ThreePairsRoll =
         }
         g |> Arb.fromGen
 
+type OneOrFiveRoll =
+    static member Roll() =
+        let g = gen {
+            return Common.oneOrFiveRoll()
+        }
+        g |> Arb.fromGen
+
+type OneOrFiveRollPropertyAttribute () =
+    inherit PropertyAttribute (
+        Arbitrary = [| typeof<OneOrFiveRoll> |])
+        
 type ThreePairsRollPropertyAttribute () =
     inherit PropertyAttribute (
         Arbitrary = [| typeof<ThreePairsRoll> |])
@@ -131,3 +164,9 @@ module BigRoller =
         let expected = 750
         let actual = roll |> ZonkKata.Roll.CalculatePoints
         test <@ expected = actual @>
+
+    [<OneOrFiveRollProperty>]
+    let ``A roll with no big points should be more than zero.`` (roll : int list) =
+        let expected = 0
+        let actual = roll |> ZonkKata.Roll.CalculatePoints
+        test <@ expected < actual @>
