@@ -11,6 +11,11 @@ module Roll =
                                         | 5 -> 50 + acc
                                         | _ -> acc) 0
 
+    let ThreeOfAKindPoints n =
+        match n with 
+        | 1 -> 100
+        | _ -> 0
+
     let CalculatePoints d =
         let sorted = d |> List.sort
         match sorted with 
