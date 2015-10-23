@@ -1,7 +1,9 @@
 ﻿namespace ZonkKata
 
 module Roll =
-    let (|ThreePairs|_|) roll = if roll |> Seq.groupBy (id) |> Seq.forall (fun (_,s) -> s |> Seq.length = 2) then Some () else None
+    let (|ThreePairs|_|) roll =
+            if roll |> Seq.groupBy (id) |> Seq.forall (fun (_,s) -> s |> Seq.length = 2) then Some ()
+            else None
 
     let CalculatePoints d =
         let sorted = d |> List.sort
