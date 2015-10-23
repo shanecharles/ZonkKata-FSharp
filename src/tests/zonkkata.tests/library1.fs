@@ -99,8 +99,8 @@ module BigRoller =
         test <@ expected <= actual @>
 
     [<RoyalRollProperty>]
-    let ``A roll of 1 through 6 should return 1500 points.`` (roll : int list) =
-        let expected = 1500
+    let ``A roll of 1 through 6 should return 1000 points.`` (roll : int list) =
+        let expected = 1000
         let actual = roll |> ZonkKata.Roll.CalculatePoints
         test <@ expected = actual @>
 
