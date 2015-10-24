@@ -205,3 +205,10 @@ module BigRoller =
         let expected = (n |> ZonkKata.Roll.ThreeOfAKindPoints) * 2
         let actual = n |> ZonkKata.Roll.FourOfAKindPoints
         test <@ expected = actual @>
+
+    [<Theory>]
+    [<InlineData(1)>]
+    let ``Five of a kind should return 3 times the three of a kind points.`` n =
+        let expected = (n |> ZonkKata.Roll.ThreeOfAKindPoints) * 3
+        let actual = n |> ZonkKata.Roll.FiveOfAKindPoints
+        test <@ expected = actual @>

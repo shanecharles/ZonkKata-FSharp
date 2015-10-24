@@ -19,6 +19,9 @@ module Roll =
     let FourOfAKindPoints n =
         (n |> ThreeOfAKindPoints) * 2
 
+    let FiveOfAKindPoints n =
+        (n |> ThreeOfAKindPoints) * 3
+
     let CalculatePoints d =
         let sorted = d |> List.sort
         match sorted with 
