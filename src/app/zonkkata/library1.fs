@@ -2,7 +2,7 @@
 
 module Roll =
     let (|ThreePairs|_|) roll =
-            if roll |> Seq.groupBy (id) |> Seq.forall (fun (_,s) -> s |> Seq.length = 2) then Some ()
+            if roll |> Seq.groupBy (id) |> Seq.forall (fun (_,s) -> s |> Seq.length = 2) then Some (750)
             else None
 
     let sumOnesAndFives dice =
@@ -26,5 +26,5 @@ module Roll =
         let sorted = d |> List.sort
         match sorted with 
         | [1; 2; 3; 4; 5; 6] -> 1000
-        | ThreePairs         -> 750
+        | ThreePairs points  -> points
         | _                  -> sorted |> sumOnesAndFives
