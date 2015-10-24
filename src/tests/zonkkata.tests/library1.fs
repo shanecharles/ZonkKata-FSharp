@@ -208,6 +208,11 @@ module BigRoller =
 
     [<Theory>]
     [<InlineData(1)>]
+    [<InlineData(2)>]
+    [<InlineData(3)>]
+    [<InlineData(4)>]
+    [<InlineData(5)>]
+    [<InlineData(6)>]
     let ``Five of a kind should return 3 times the three of a kind points.`` n =
         let expected = (n |> ZonkKata.Roll.ThreeOfAKindPoints) * 3
         let actual = n |> ZonkKata.Roll.FiveOfAKindPoints
