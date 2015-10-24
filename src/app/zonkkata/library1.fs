@@ -16,14 +16,11 @@ module Roll =
         | 1 -> 1000
         | _ -> n * 100
 
-    let FourOfAKindPoints n =
-        (n |> ThreeOfAKindPoints) * 2
+    let FourOfAKindPoints n = 2 * (n |> ThreeOfAKindPoints)
 
-    let FiveOfAKindPoints n =
-        (n |> ThreeOfAKindPoints) * 3
+    let FiveOfAKindPoints n = 3 * (n |> ThreeOfAKindPoints)
 
-    let SixOfAKindPoints n =
-        (n |> ThreeOfAKindPoints) * 4
+    let SixOfAKindPoints n = 4 * (n |> ThreeOfAKindPoints)
 
     let CalculatePoints d =
         let sorted = d |> List.sort
