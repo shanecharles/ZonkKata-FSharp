@@ -5,11 +5,13 @@ module Roll =
             if roll |> Seq.groupBy (id) |> Seq.forall (fun (_,s) -> s |> Seq.length = 2) then Some (750)
             else None
 
+    let singleDiePoints d = match d with
+                            | 1 -> 100
+                            | 5 -> 50
+                            | _ -> 0
+
     let sumOnesAndFives dice =
-        dice |> List.fold (fun acc x -> match x with 
-                                        | 1 -> 100 + acc
-                                        | 5 -> 50 + acc
-                                        | _ -> acc) 0
+        dice |> List.fold (fun acc x -> (x |> singleDiePoints) + acc)  0
 
     let ThreeOfAKindPoints n =
         match n with 
@@ -22,9 +24,28 @@ module Roll =
 
     let SixOfAKindPoints n = 4 * (n |> ThreeOfAKindPoints)
 
+    let (|ThreeOfAKind|_|) roll = 
+        let getGroupPoints (x, c) =
+            match c with 
+            | 3 -> x |> ThreeOfAKindPoints
+            | _ -> c * (x |> singleDiePoints)
+
+        roll |> Seq.groupBy (id)
+             |> Seq.map (fun (x,s) -> (x, s |> Seq.length))
+             |> Seq.sortBy (fun (_,c) -> c)
+             |> Seq.toList
+             |> List.rev
+             |> fun grps -> match grps |> List.exists (fun (x,c) -> c = 3) with 
+                            | true -> let pts = grps 
+                                                |> List.map getGroupPoints 
+                                                |> List.sum
+                                      Some pts
+                            | _ -> None
+
     let CalculatePoints d =
         let sorted = d |> List.sort
         match sorted with 
         | [1; 2; 3; 4; 5; 6] -> 1000
-        | ThreePairs points  -> points
+        | ThreePairs pts     -> pts
+        | ThreeOfAKind pts   -> pts
         | _                  -> sorted |> sumOnesAndFives
