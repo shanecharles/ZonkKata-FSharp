@@ -21,6 +21,14 @@ module Common =
     
     let getAndRemoveNth l n = (n |> List.nth l, n |> removeNth l)
 
+    let randomizeOrder roll = 
+        let rec reorder rem =
+            match rem with 
+            | [] -> []
+            | _  -> let (n,rem') = rand.Next(rem |> List.length) |> getAndRemoveNth rem
+                    n :: (reorder rem')
+        reorder roll
+
     let oneOrFiveRoll () =
         let pool = [1 .. 6] @ [1 .. 6]
         let rec nextDie rem avail =
@@ -103,20 +111,7 @@ type ZonkRollPropertyAttribute () =
 type RoyalRoll = 
     static member Roll() =
         let g = gen {
-            let order = [1 .. 5]
-                        |> List.rev
-                        |> List.map (fun x -> Common.rand.Next(x))
-
-            let rec reorder o (l : int list) =
-                match o with 
-                | [] -> l
-                | h :: o' ->
-                    let n = List.nth l h
-                    let l' = l |> List.filter (fun x -> x <> n)
-                    n :: (reorder o' l')
-
-            return [1 .. 6]
-                    |> reorder order
+            return [1 .. 6] |> Common.randomizeOrder
         }
         g |> Arb.fromGen
 
