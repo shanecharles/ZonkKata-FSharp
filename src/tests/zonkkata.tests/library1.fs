@@ -10,7 +10,8 @@ module Common =
     let rand = new Random()
 
     let excludeNumber n = seq { for i in 1..6 do if i <> n then yield i }
-
+    let excludeNumbers ns = seq { for i in 1..6 do if ns |> List.forall (fun x -> x <> i) 
+                                                   then yield i }
     let removeNth l n = l 
                         |> List.fold (fun (nth, i, acc) elem -> 
                                         let acc' = match nth = i with 
@@ -67,6 +68,19 @@ module Common =
                 n :: (nextDie (rem-1) (removeNth avail i))
         nextDie 6 pool
 
+type ThreeOfAKindWithNoMorePoints =
+    static member Roll() =
+        let g = gen {
+            let! n = Gen.choose (1,6)
+            let pool = [n; 1; 5] |> Common.excludeNumbers |> Seq.toList
+            let rest = pool @ pool |> Common.randomizeOrder |> Seq.take 3 |> Seq.toList
+            let roll = n :: n :: n :: rest |> Common.randomizeOrder
+            return (n, roll)
+        } 
+        g |> Arb.fromGen
+
+
+
 type ZonkRoll = 
     static member Roll() =
         let g = gen {
@@ -95,6 +109,10 @@ type OneOrFiveRoll =
             return Common.oneOrFiveRoll()
         }
         g |> Arb.fromGen
+
+type ThreeOfAKindWithNoMorePointsPropertyAttribute () =
+    inherit PropertyAttribute (
+        Arbitrary = [| typeof<ThreeOfAKindWithNoMorePoints> |])
 
 type OneOrFiveRollPropertyAttribute () =
     inherit PropertyAttribute (
@@ -235,4 +253,10 @@ module BigRoller =
     let ``A with three of a kind of twos and a one should return 300 points.`` () =
         let expected = 300
         let actual = [2; 2; 2; 1; 3; 4] |> ZonkKata.Roll.CalculatePoints
+        test <@ expected = actual @>
+
+    [<ThreeOfAKindWithNoMorePointsProperty>]
+    let ``Three of a kind of die N and no more points should return three of a kind points for N.`` ((n : int), (roll : int list)) =
+        let expected = n |> ZonkKata.Roll.ThreeOfAKindPoints
+        let actual = roll |> ZonkKata.Roll.CalculatePoints
         test <@ expected = actual @>
