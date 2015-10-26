@@ -2,7 +2,7 @@
 
 module Roll =
     let (|ThreePairs|_|) roll =
-            if roll |> Seq.groupBy (id) |> Seq.forall (fun (_,s) -> s |> Seq.length = 2) then Some (750)
+            if roll |> Seq.groupBy (id) |> Seq.forall (fun (_,s) -> s |> Seq.length = 2) then Some ()
             else None
 
     let singleDiePoints d = match d with
@@ -19,9 +19,7 @@ module Roll =
         | _ -> n * 100
 
     let FourOfAKindPoints n = 2 * (n |> ThreeOfAKindPoints)
-
     let FiveOfAKindPoints n = 3 * (n |> ThreeOfAKindPoints)
-
     let SixOfAKindPoints n = 4 * (n |> ThreeOfAKindPoints)
 
     let (|OfAKind|_|) roll = 
@@ -49,6 +47,6 @@ module Roll =
         let sorted = d |> List.sort
         match sorted with 
         | [1; 2; 3; 4; 5; 6] -> 1000
-        | ThreePairs pts     -> pts
+        | ThreePairs         -> 750
         | OfAKind pts        -> pts
         | _                  -> sorted |> sumOnesAndFives
