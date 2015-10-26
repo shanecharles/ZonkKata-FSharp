@@ -82,6 +82,21 @@ type FourOfAKindWithNoExtraPoints =
         }
         g |> Arb.fromGen
 
+type FourOfAKindWithExtraPoints = 
+    static member Roll() =
+        let g = gen {
+            let! n = Gen.choose (1,6)
+            let pool = n |> Common.excludeNumber |> Seq.toList
+            let scoringDice = [1; 5] |> List.filter (fun x -> x <> n) 
+            let! i = Gen.choose (0, (scoringDice |> Seq.length) - 1)
+            let oneOrFive = i |> List.nth scoringDice
+            let! j = Gen.choose (0,4)
+            let last = j |> List.nth (n |> Common.excludeNumber |> Seq.toList)
+            let roll = oneOrFive :: last :: (List.init 4 (fun _ -> n))
+            return n,roll
+        }
+        g |> Arb.fromGen
+
 type ThreeOfAKindWithAnotherThreeOfAKind =
     static member Roll() =
         let g = gen {
@@ -147,6 +162,10 @@ type OneOrFiveRoll =
             return Common.oneOrFiveRoll()
         }
         g |> Arb.fromGen
+
+type FourOfAKindWithExtraPointsPropertyAttribute () =
+    inherit PropertyAttribute (
+        Arbitrary = [| typeof<FourOfAKindWithExtraPoints> |])
 
 type FourOfAKindWithNoExtraPointsPropertyAttribute () =
     inherit PropertyAttribute (
@@ -334,3 +353,9 @@ module BigRoller =
         let expected = 2 * (n |> ZonkKata.Roll.ThreeOfAKindPoints)
         let actual = roll |> ZonkKata.Roll.CalculatePoints
         test <@ expected = actual @>
+
+    [<FourOfAKindWithExtraPointsProperty>]
+    let ``Four of a kind with extra points should return more than the four of a kind points.`` (n : int, roll : int list) =
+        let expected = n |> ZonkKata.Roll.FourOfAKindPoints
+        let actual = roll |> ZonkKata.Roll.CalculatePoints
+        test <@ expected < actual @>
