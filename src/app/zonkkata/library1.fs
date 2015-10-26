@@ -27,6 +27,7 @@ module Roll =
     let (|OfAKind|_|) roll = 
         let getGroupPoints (x, c) =
             match c with 
+            | 5 -> x |> FiveOfAKindPoints
             | 4 -> x |> FourOfAKindPoints
             | 3 -> x |> ThreeOfAKindPoints
             | _ -> c * (x |> singleDiePoints)
@@ -36,7 +37,7 @@ module Roll =
              |> Seq.sortBy (fun (_,c) -> c)
              |> Seq.toList
              |> List.rev
-             |> fun grps -> match grps |> List.exists (fun (x,c) -> c = 3 || c = 4) with 
+             |> fun grps -> match grps |> List.exists (fun (x,c) -> c >= 3) with 
                             | true -> let pts = grps 
                                                 |> List.map getGroupPoints 
                                                 |> List.sum
