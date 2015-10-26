@@ -27,6 +27,7 @@ module Roll =
     let (|OfAKind|_|) roll = 
         let getGroupPoints (x, c) =
             match c with 
+            | 6 -> x |> SixOfAKindPoints
             | 5 -> x |> FiveOfAKindPoints
             | 4 -> x |> FourOfAKindPoints
             | 3 -> x |> ThreeOfAKindPoints
