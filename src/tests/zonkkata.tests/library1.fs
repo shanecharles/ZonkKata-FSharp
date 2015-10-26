@@ -68,6 +68,18 @@ module Common =
                 n :: (nextDie (rem-1) (removeNth avail i))
         nextDie 6 pool
 
+type ThreeOfAKindWithAnotherThreeOfAKind =
+    static member Roll() =
+        let g = gen {
+            let! i1 = Gen.choose (0,5)
+            let! i2 = Gen.choose (0,4)
+            let (n, rest) = i1 |> Common.getAndRemoveNth [1 .. 6]
+            let m = i2 |> List.nth rest
+            let roll = [n; n; n; m; m; m] |> Common.randomizeOrder
+            return (n, m, roll)
+        }
+        g |> Arb.fromGen
+
 type ThreeOfAKindWithNoMorePoints =
     static member Roll() =
         let g = gen {
@@ -121,6 +133,10 @@ type OneOrFiveRoll =
             return Common.oneOrFiveRoll()
         }
         g |> Arb.fromGen
+
+type ThreeOfAKindWithAnotherThreeOfAKindPropertyAttribute () =
+    inherit PropertyAttribute (
+        Arbitrary = [| typeof<ThreeOfAKindWithAnotherThreeOfAKind> |])
 
 type ThreeOfAKindWithExtraPointsPropertyAttribute () =
     inherit PropertyAttribute (
@@ -282,3 +298,9 @@ module BigRoller =
         let expected = n |> ZonkKata.Roll.ThreeOfAKindPoints
         let actual = roll |> ZonkKata.Roll.CalculatePoints
         test <@ expected < actual @>
+
+    [<ThreeOfAKindWithAnotherThreeOfAKindProperty>]
+    let ``Three of a kind with another three of a kind should return the sum of the two three of a kind points.`` ((n : int, m : int, roll : int list)) =
+        let expected = (n |> ZonkKata.Roll.ThreeOfAKindPoints) + (m |> ZonkKata.Roll.ThreeOfAKindPoints)
+        let actual = roll |> ZonkKata.Roll.CalculatePoints
+        test <@ expected = actual @>
