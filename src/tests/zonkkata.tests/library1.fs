@@ -79,7 +79,19 @@ type ThreeOfAKindWithNoMorePoints =
         } 
         g |> Arb.fromGen
 
-
+type ThreeOfAKindWithExtraPoints = 
+    static member Roll() =
+        let g = gen {
+            let! n = Gen.choose (1,6)
+            let rest = n |> Common.excludeNumber |> Seq.toList
+            let pool = rest @ rest |> Common.randomizeOrder |> Seq.take 3 |> Seq.toList
+            let roll = n :: n :: n :: pool |> Common.randomizeOrder
+            return (n, roll)
+        }
+        g |> Arb.fromGen
+          |> Arb.filter (fun (n, roll) -> 
+                            let scoring = [1; 5] |> List.filter (fun x -> x <> n)
+                            roll |> List.exists (fun x -> scoring |> List.exists (fun y -> y = x)))
 
 type ZonkRoll = 
     static member Roll() =
@@ -109,6 +121,10 @@ type OneOrFiveRoll =
             return Common.oneOrFiveRoll()
         }
         g |> Arb.fromGen
+
+type ThreeOfAKindWithExtraPointsPropertyAttribute () =
+    inherit PropertyAttribute (
+        Arbitrary = [| typeof<ThreeOfAKindWithExtraPoints> |])
 
 type ThreeOfAKindWithNoMorePointsPropertyAttribute () =
     inherit PropertyAttribute (
@@ -260,3 +276,9 @@ module BigRoller =
         let expected = n |> ZonkKata.Roll.ThreeOfAKindPoints
         let actual = roll |> ZonkKata.Roll.CalculatePoints
         test <@ expected = actual @>
+
+    [<ThreeOfAKindWithExtraPointsProperty>]
+    let ``Three of a kind of dice N which contain an extra one or five should return more than three of a kind point for N.`` ((n : int), (roll : int list)) =
+        let expected = n |> ZonkKata.Roll.ThreeOfAKindPoints
+        let actual = roll |> ZonkKata.Roll.CalculatePoints
+        test <@ expected < actual @>
