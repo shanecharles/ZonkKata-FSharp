@@ -80,7 +80,11 @@ type FourOfAKindWithNoExtraPoints =
                        |> Common.randomizeOrder
             return n,roll
         }
-        g |> Arb.fromGen
+        g 
+        |> Arb.fromGen
+        |> Arb.filter (fun (n,r) -> match n with 
+                                    | 2 -> r |> Seq.groupBy (id) |> Seq.length > 2
+                                    | _ -> true)
 
 type FourOfAKindWithExtraPoints = 
     static member Roll() =
@@ -95,7 +99,11 @@ type FourOfAKindWithExtraPoints =
             let roll = oneOrFive :: last :: (List.init 4 (fun _ -> n))
             return n,roll
         }
-        g |> Arb.fromGen
+        g 
+        |> Arb.fromGen
+        |> Arb.filter (fun (n,r) -> match n with 
+                                    | 2 -> r |> Seq.groupBy (id) |> Seq.length > 2
+                                    | _ -> true)
 
 type FiveOfAKindWithNoExtraPoints = 
     static member Roll() =
@@ -394,7 +402,7 @@ module BigRoller =
 
     [<FiveOfAKindWithNoExtraPointsProperty>]
     let ``Five of a kind with no extra points should return three times the three of a kind points.`` (n : int, roll : int list) =
-        let expected = n |> ZonkKata.Roll.FiveOfAKindPoints
+        let expected = 3 * (n |> ZonkKata.Roll.ThreeOfAKindPoints)
         let actual = roll |> ZonkKata.Roll.CalculatePoints
         test <@ expected = actual @>
 
@@ -414,4 +422,10 @@ module BigRoller =
     let ``Six of a kind should return four times the three of a kind points.`` (n : int) =
         let expected = 4 * (n |> ZonkKata.Roll.ThreeOfAKindPoints)
         let actual = [n; n; n; n; n; n] |> ZonkKata.Roll.CalculatePoints
+        test <@ expected = actual @>
+
+    [<Fact>]
+    let ``Four twos and two ones should count more points as three pairs.`` () =
+        let expected = 750
+        let actual = [2; 2; 2; 2; 1; 1] |> ZonkKata.Roll.CalculatePoints
         test <@ expected = actual @>
