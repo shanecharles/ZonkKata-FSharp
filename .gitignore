@@ -8,3 +8,4 @@ bin/
 build/
 tests/
 .fake/
+*.DotSettings.user
