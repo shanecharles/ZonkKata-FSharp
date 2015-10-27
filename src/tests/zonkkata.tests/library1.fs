@@ -83,7 +83,7 @@ type FourOfAKindWithNoExtraPoints =
         g 
         |> Arb.fromGen
         |> Arb.filter (fun (n,r) -> match n with 
-                                    | 2 -> r |> Seq.groupBy (id) |> Seq.length > 2
+                                    | 2 | 3 -> r |> Seq.groupBy (id) |> Seq.length > 2
                                     | _ -> true)
 
 type FourOfAKindWithExtraPoints = 
@@ -433,4 +433,20 @@ module BigRoller =
     let ``Four twos and any other pair count more points as three pairs.`` (n : int) =
         let expected = 750
         let actual = (n :: n :: [2; 2; 2; 2]) |> ZonkKata.Roll.CalculatePoints
+        test <@ expected = actual @>
+
+    [<Theory>]
+    [<InlineData(2)>]
+    [<InlineData(4)>]
+    [<InlineData(5)>]
+    [<InlineData(6)>]
+    let ``Four threes and any pair but ones should return three pairs score.`` (n : int) =
+        let expected = 750
+        let actual = (n :: n :: [3; 3; 3; 3]) |> ZonkKata.Roll.CalculatePoints
+        test <@ expected = actual @>
+
+    [<Fact>]
+    let ``Four threes and a pair of ones should return 800 points.`` () =
+        let expected = 800
+        let actual = [1; 1; 3; 3; 3; 3] |> ZonkKata.Roll.CalculatePoints
         test <@ expected = actual @>
