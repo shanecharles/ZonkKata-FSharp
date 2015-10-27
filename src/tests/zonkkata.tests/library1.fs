@@ -424,8 +424,13 @@ module BigRoller =
         let actual = [n; n; n; n; n; n] |> ZonkKata.Roll.CalculatePoints
         test <@ expected = actual @>
 
-    [<Fact>]
-    let ``Four twos and two ones should count more points as three pairs.`` () =
+    [<Theory>]
+    [<InlineData(1)>]
+    [<InlineData(3)>]
+    [<InlineData(4)>]
+    [<InlineData(5)>]
+    [<InlineData(6)>]
+    let ``Four twos and any other pair count more points as three pairs.`` (n : int) =
         let expected = 750
-        let actual = [2; 2; 2; 2; 1; 1] |> ZonkKata.Roll.CalculatePoints
+        let actual = (n :: n :: [2; 2; 2; 2]) |> ZonkKata.Roll.CalculatePoints
         test <@ expected = actual @>
