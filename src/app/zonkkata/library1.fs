@@ -6,8 +6,8 @@ module Roll =
                             | 5 -> 50
                             | _ -> 0
 
-    let sumOnesAndFives dice =
-        dice |> List.fold (fun acc x -> (x |> singleDiePoints) + acc)  0
+    let sumOnesAndFives dice = dice |> Seq.map singleDiePoints |> Seq.sum
+        //dice |> List.fold (fun acc x -> (x |> singleDiePoints) + acc)  0
 
     let ThreePairsPoints = 750
 
