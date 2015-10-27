@@ -9,6 +9,8 @@ module Roll =
     let sumOnesAndFives dice =
         dice |> List.fold (fun acc x -> (x |> singleDiePoints) + acc)  0
 
+    let ThreePairsPoints = 750
+
     let ThreeOfAKindPoints n =
         match n with 
         | 1 -> 1000
@@ -33,9 +35,9 @@ module Roll =
              |> Seq.toList
              |> List.rev
              |> fun grps -> match grps with 
-                            | [(_,2); (_,2); (_,2)]      -> Some 750
-                            | [(2,4); (_,2)]             -> Some 750 // More points with three pairs
-                            | [(3,4); (x,2)] when x <> 1 -> Some 750
+                            | [(_,2); (_,2); (_,2)]      -> Some ThreePairsPoints
+                            | [(2,4); (_,2)]             -> Some ThreePairsPoints
+                            | [(3,4); (x,2)] when x <> 1 -> Some ThreePairsPoints
                             | (_,c) :: t when c >= 3 -> 
                                                 let pts = grps
                                                           |> List.map getGroupPoints 
