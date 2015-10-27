@@ -441,7 +441,7 @@ module BigRoller =
     [<InlineData(5)>]
     [<InlineData(6)>]
     let ``Four threes and any pair but ones should return three pairs score.`` (n : int) =
-        let expected = 750
+        let expected = ZonkKata.Roll.ThreePairsPoints
         let actual = (n :: n :: [3; 3; 3; 3]) |> ZonkKata.Roll.CalculatePoints
         test <@ expected = actual @>
 
