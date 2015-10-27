@@ -1,12 +1,12 @@
 ﻿namespace ZonkKata
 
 module Roll =
-    let singleDiePoints d = match d with
+    let SingleDiePoints d = match d with
                             | 1 -> 100
                             | 5 -> 50
                             | _ -> 0
 
-    let sumOnesAndFives dice = dice |> Seq.map singleDiePoints |> Seq.sum
+    let SumOnesAndFives dice = dice |> Seq.map SingleDiePoints |> Seq.sum
 
     let ThreePairsPoints = 750
 
@@ -18,14 +18,14 @@ module Roll =
     let FiveOfAKindPoints n = 3 * (n |> ThreeOfAKindPoints)
     let SixOfAKindPoints n = 4 * (n |> ThreeOfAKindPoints)
 
-    let (|OfAKind|_|) roll = 
+    let (|GroupPoints|_|) roll = 
         let groupPoints (x, c) =
             match c with 
             | 6 -> x |> SixOfAKindPoints
             | 5 -> x |> FiveOfAKindPoints
             | 4 -> x |> FourOfAKindPoints
             | 3 -> x |> ThreeOfAKindPoints
-            | _ -> c * (x |> singleDiePoints)
+            | _ -> c * (x |> SingleDiePoints)
 
         roll |> Seq.groupBy (id)
              |> Seq.map (fun (x,s) -> (x, s |> Seq.length))
@@ -46,5 +46,5 @@ module Roll =
         let sorted = d |> List.sort
         match sorted with 
         | [1; 2; 3; 4; 5; 6] -> 1000
-        | OfAKind pts        -> pts
-        | _                  -> sorted |> sumOnesAndFives
+        | GroupPoints pts    -> pts
+        | _                  -> sorted |> SumOnesAndFives
