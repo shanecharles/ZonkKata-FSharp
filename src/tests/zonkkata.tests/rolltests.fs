@@ -283,7 +283,7 @@ module BigRoller =
 
     [<ThreePairsRollProperty>]
     let ``A roll of any three pairs should score 750 points.`` (roll : int list) =
-        let expected = 750
+        let expected = ZonkKata.Roll.ThreePairsPoints
         let actual = roll |> ZonkKata.Roll.CalculatePoints
         test <@ expected = actual @>
 
@@ -431,7 +431,7 @@ module BigRoller =
     [<InlineData(5)>]
     [<InlineData(6)>]
     let ``Four twos and any other pair count more points as three pairs.`` (n : int) =
-        let expected = 750
+        let expected = ZonkKata.Roll.ThreePairsPoints
         let actual = (n :: n :: [2; 2; 2; 2]) |> ZonkKata.Roll.CalculatePoints
         test <@ expected = actual @>
 
