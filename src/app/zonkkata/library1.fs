@@ -7,21 +7,19 @@ module Roll =
                             | _ -> 0
 
     let sumOnesAndFives dice = dice |> Seq.map singleDiePoints |> Seq.sum
-        //dice |> List.fold (fun acc x -> (x |> singleDiePoints) + acc)  0
 
     let ThreePairsPoints = 750
 
-    let ThreeOfAKindPoints n =
-        match n with 
-        | 1 -> 1000
-        | _ -> n * 100
+    let ThreeOfAKindPoints n = match n with 
+                               | 1 -> 1000
+                               | _ -> n * 100
 
     let FourOfAKindPoints n = 2 * (n |> ThreeOfAKindPoints)
     let FiveOfAKindPoints n = 3 * (n |> ThreeOfAKindPoints)
     let SixOfAKindPoints n = 4 * (n |> ThreeOfAKindPoints)
 
     let (|OfAKind|_|) roll = 
-        let getGroupPoints (x, c) =
+        let groupPoints (x, c) =
             match c with 
             | 6 -> x |> SixOfAKindPoints
             | 5 -> x |> FiveOfAKindPoints
@@ -38,11 +36,10 @@ module Roll =
                             | [(_,2); (_,2); (_,2)]      -> Some ThreePairsPoints
                             | [(2,4); (_,2)]             -> Some ThreePairsPoints
                             | [(3,4); (x,2)] when x <> 1 -> Some ThreePairsPoints
-                            | (_,c) :: t when c >= 3 -> 
-                                                let pts = grps
-                                                          |> List.map getGroupPoints 
-                                                          |> List.sum
-                                                Some pts
+                            | (_,c) :: t     when c >= 3 -> grps
+                                                            |> List.map groupPoints 
+                                                            |> List.sum
+                                                            |> Some
                             | _ -> None
 
     let CalculatePoints d =
