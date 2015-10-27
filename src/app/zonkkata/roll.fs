@@ -42,9 +42,13 @@ module Roll =
                                                             |> Some
                             | _ -> None
 
-    let CalculatePoints d =
-        let sorted = d |> List.sort
+    let CalculatePoints roll =
+        let sorted = roll |> List.sort
         match sorted with 
         | [1; 2; 3; 4; 5; 6] -> 1000
         | GroupPoints pts    -> pts
         | _                  -> sorted |> SumOnesAndFives
+
+    let PrintPoints roll = match roll |> CalculatePoints with 
+                           | 0 -> printfn "Zonk!"
+                           | p -> printfn "You rolled %i points." p
