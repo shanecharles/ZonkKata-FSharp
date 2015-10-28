@@ -30,4 +30,5 @@ The object is to calculate the maximum score for a roll. A die can only be used 
 
 Currently the tests don't run on Windows.
 
+    > build.cmd  // on Windows
     $ ./build.sh   // on unix
