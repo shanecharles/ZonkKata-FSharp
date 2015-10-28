@@ -7,12 +7,13 @@ For this kata the scoring is defined as:
 - An individual 1 or 5 scores 100 or 50 points respectively
 - A straight 1 through 6 scores 1000 points
 - Three pairs of any dice scores 750 points
-- Three of a kind: 1 - 1000 points
-                   2 -  200 points
-                   3 -  300 points
-                   4 -  400 points
-                   5 -  500 points
-                   6 -  600 points
+- Three of a kind: 
+  * 1 - 1000 points
+  * 2 -  200 points
+  * 3 -  300 points
+  * 4 -  400 points
+  * 5 -  500 points
+  * 6 -  600 points
 
 - Four of a kind scores 2x the Three of a kind points
 - Five of a kind scores 3x the Three of a kind points
