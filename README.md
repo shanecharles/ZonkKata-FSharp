@@ -6,7 +6,7 @@ Zonk is a game consisting of 6 dice. The official rules and details can be found
 For this kata the scoring is defined as:
 - An individual 1 or 5 scores 100 or 50 points respectively
 - A straight 1 through 6 scores 1000 points
-- Three pairs of any numbers scores 750 points
+- Three pairs of any numbers score 750 points
 - Three of a kind: 
   * 1 - 1000 points
   * 2 -  200 points
