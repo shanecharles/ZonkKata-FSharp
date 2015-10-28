@@ -19,10 +19,10 @@ For this kata the scoring is defined as:
 - Six of a kind scores 4x the Three of a kind points
 
 eg.
-  1, 1, 4, 5, 6, 1 - 1050 points - Three of a kind of 1s and one 5
-  5, 4, 6, 2, 1, 2 -  150 points - Count of one 1 and one 5
-  1, 2, 6, 2, 1, 6 -  750 points - Three pairs
-  2, 3, 6, 4, 2, 3 -    0 points - Zonk!
+-  1, 1, 4, 5, 6, 1 - 1050 points - Three of a kind of 1s and one 5
+-  5, 4, 6, 2, 1, 2 -  150 points - Count of one 1 and one 5
+-  1, 2, 6, 2, 1, 6 -  750 points - Three pairs
+-  2, 3, 6, 4, 2, 3 -    0 points - Zonk!
 
 The object is to calculate the maximum score for a roll. A die can only be used for one score.
 
