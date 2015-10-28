@@ -14,7 +14,6 @@ For this kata the scoring is defined as:
   * 4 -  400 points
   * 5 -  500 points
   * 6 -  600 points
-
 - Four of a kind scores 2x the Three of a kind points
 - Five of a kind scores 3x the Three of a kind points
 - Six of a kind scores 4x the Three of a kind points
@@ -27,4 +26,8 @@ eg.
 
 The object is to calculate the maximum score for a roll. A die can only be used for one score.
 
+## Build
 
+Currently the tests don't run on Windows.
+
+$ ./build.sh   // on unix
