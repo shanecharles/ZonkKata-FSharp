@@ -1,6 +1,12 @@
 # ZonkKata-FSharp
 Zonk Kata done in F#
 
+## Caveat
+
+The current version of XUnit this project uses relies on Mono version 4.2.x which
+is currently in Alpha as of 2015/10/28. (Sorry)
+
+
 Zonk is a game consisting of 6 dice. The official rules and details can be found at [http://www.zonkthegame.com](http://www.zonkthegame.com).
 
 For this kata the scoring is defined as:
