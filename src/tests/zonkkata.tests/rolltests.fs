@@ -2,6 +2,7 @@
 
 open System
 open Xunit
+open Xunit.Extensions
 open Swensen.Unquote
 open FsCheck
 open FsCheck.Xunit

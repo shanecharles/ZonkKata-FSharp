@@ -1,3 +1,5 @@
-Xunit
-fscheck.xunit
 unquote
+xunit
+xunit.extensions
+fscheck
+fscheck.xunit

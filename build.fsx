@@ -24,7 +24,10 @@ Target "BuildTest" (fun _ ->
 
 Target "RunTests" (fun _ ->
     !! (testDir @@ "/*.Tests.dll")
-      |> xUnit2 (fun p -> {p with HtmlOutputPath = Some (testDir @@ "xunit.html")})
+//      |> xUnit2 (fun p -> {p with HtmlOutputPath = Some (testDir @@ "xunit.html")})
+        |> xUnit (fun p -> {p with 
+                                OutputDir = testDir
+                                ToolPath = "packages/xunit.runners/tools/xunit.console.x86.exe"})
 )
 
 Target "Default" (fun _ ->

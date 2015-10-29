@@ -1,7 +1,9 @@
 source https://nuget.org/api/v2
 
 nuget fake
-nuget xunit
-nuget fscheck.xunit
 nuget unquote
-nuget xunit.runner.console
+nuget Xunit = 1.9.2
+nuget Xunit.extensions = 1.9.2
+nuget Xunit.runners = 1.9.2
+nuget fscheck = 2.0.7
+nuget fscheck.xunit = 2.0.7
