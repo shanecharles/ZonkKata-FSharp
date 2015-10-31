@@ -32,4 +32,5 @@ The object is to calculate the maximum score for a roll. A die can only be used 
     $ ./build.sh   // on unix
 
 Running only the tests
+
     $ ./run-tests.sh // on unix
