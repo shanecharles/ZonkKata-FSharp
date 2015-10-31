@@ -1,54 +1,48 @@
-﻿namespace ZonkKata
+module ZonkKata.Roll 
+let SingleDiePoints = function | 1 -> 100 | 5 -> 50 | _ -> 0
+let ThreePairsPoints = 750
+let ThreeOfAKindPoints = function 1 -> 1000 | n -> n * 100
+let FourOfAKindPoints = ThreeOfAKindPoints >> (*) 2
+let FiveOfAKindPoints = ThreeOfAKindPoints >> (*) 3
+let SixOfAKindPoints = ThreeOfAKindPoints >> (*) 4
 
-module Roll =
-    let SingleDiePoints d = match d with
-                            | 1 -> 100
-                            | 5 -> 50
-                            | _ -> 0
+let SumOnesAndFives = Seq.map SingleDiePoints >> Seq.sum
+let GroupAndSortByFrequency = Seq.groupBy id
+                              >> Seq.map (fun (x,s) -> x, s |> Seq.length)
+                              >> Seq.sortBy snd
+                              >> Seq.toList
+                              >> List.rev
 
-    let SumOnesAndFives dice = dice |> Seq.map SingleDiePoints |> Seq.sum
+let CalcGroupPoints = function
+                     | x, 6 -> x |> SixOfAKindPoints
+                     | x, 5 -> x |> FiveOfAKindPoints
+                     | x, 4 -> x |> FourOfAKindPoints
+                     | x, 3 -> x |> ThreeOfAKindPoints
+                     | x, c -> c * (x |> SingleDiePoints)
 
-    let ThreePairsPoints = 750
+let (|RolledStraight|_|) = Seq.length >> function | 6 -> Some () | _ -> None
+// You score more points by breaking up four of a kind of 2s or 3s and another pair, except 3s and pair of 1s.
+let (|RolledThreePairs|_|) = function
+                             | [(_,2); (_,2); (_,2)]      -> Some ()
+                             | [(2,4); (_,2)]             -> Some ()
+                             | [(3,4); (x,2)] when x <> 1 -> Some ()
+                             | _                          -> None
 
-    let ThreeOfAKindPoints n = match n with 
-                               | 1 -> 1000
-                               | _ -> n * 100
+let (|RolledNOfAKind|_|) = function
+                        | (x,c) :: t when c >= 3 -> (x,c) :: t
+                                                    |> List.map CalcGroupPoints
+                                                    |> List.sum
+                                                    |> Some
+                        | _ -> None
 
-    let FourOfAKindPoints n = 2 * (n |> ThreeOfAKindPoints)
-    let FiveOfAKindPoints n = 3 * (n |> ThreeOfAKindPoints)
-    let SixOfAKindPoints n = 4 * (n |> ThreeOfAKindPoints)
+let CalculatePoints (roll : int list) =
+    match roll |> GroupAndSortByFrequency with
+    | RolledStraight     -> 1000
+    | RolledThreePairs   -> ThreePairsPoints
+    | RolledNOfAKind pts -> pts
+    | _                  -> roll |> SumOnesAndFives
 
-    let (|GroupPoints|_|) roll = 
-        let groupPoints (x, c) =
-            match c with 
-            | 6 -> x |> SixOfAKindPoints
-            | 5 -> x |> FiveOfAKindPoints
-            | 4 -> x |> FourOfAKindPoints
-            | 3 -> x |> ThreeOfAKindPoints
-            | _ -> c * (x |> SingleDiePoints)
-
-        roll |> Seq.groupBy (id)
-             |> Seq.map (fun (x,s) -> (x, s |> Seq.length))
-             |> Seq.sortBy (fun (_,c) -> c)
-             |> Seq.toList
-             |> List.rev
-             |> fun grps -> match grps with 
-                            | [(_,2); (_,2); (_,2)]      -> Some ThreePairsPoints
-                            | [(2,4); (_,2)]             -> Some ThreePairsPoints
-                            | [(3,4); (x,2)] when x <> 1 -> Some ThreePairsPoints
-                            | (_,c) :: t     when c >= 3 -> grps
-                                                            |> List.map groupPoints 
-                                                            |> List.sum
-                                                            |> Some
-                            | _ -> None
-
-    let CalculatePoints roll =
-        let sorted = roll |> List.sort
-        match sorted with 
-        | [1; 2; 3; 4; 5; 6] -> 1000
-        | GroupPoints pts    -> pts
-        | _                  -> sorted |> SumOnesAndFives
-
-    let PrintPoints roll = match roll |> CalculatePoints with 
-                           | 0 -> printfn "Zonk!"
-                           | p -> printfn "You rolled %i points." p
+let PrintPoints = CalculatePoints
+                  >> function
+                  | 0   -> printfn "Zonk!"
+                  | pts -> printfn "You rolled %i points." pts
