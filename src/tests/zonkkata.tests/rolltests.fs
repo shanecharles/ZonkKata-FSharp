@@ -53,17 +53,20 @@ module Common =
 
 type Die =
     static member Gen = Gen.choose (1,6)
+    static member Value () = Die.Gen |> Arb.fromGen
 
 type NonScoringDie = 
     static member Gen = Gen.elements [2; 3; 4; 6]
+    static member Value () = NonScoringDie.Gen |> Arb.fromGen
 
 type ScoringDie =
     static member Gen = Gen.elements [1; 5]
+    static member Value () = ScoringDie.Gen |> Arb.fromGen
 
 type FourOfAKindWithNoExtraPoints =
     static member Roll() =
         let g = gen {
-            let! n = Gen.choose (1,6)
+            let! n = Die.Gen
             let pool = [n; 1; 5] |> Common.excludeNumbers |> Seq.toList
             let len = (pool |> Seq.length) - 1
             let! i1 = Gen.choose (0, len)
@@ -242,6 +245,14 @@ type RoyalRollPropertyAttribute () =
         Arbitrary = [| typeof<RoyalRoll> |])
 
 module BigRoller =
+    [<Property(Arbitrary = [| typeof<NonScoringDie> |])>]
+    let ``A non scoring die should not contain a 1 or a 5.`` (d : int) =
+        [1; 5] |> List.forall (fun x -> x <> d)
+
+    [<Property(Arbitrary = [| typeof<Die> |])>]
+    let ``A die value should be between 1 and 6.`` (d : int) =
+        d >= 1 && d <= 6
+
     [<Fact>]
     let ``A roll should return points greater than or equal to zero.`` () =
         let expected = 0
