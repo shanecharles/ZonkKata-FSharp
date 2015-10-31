@@ -33,9 +33,9 @@ Target "Default" (fun _ ->
 )
 
 "Clean"
-  ==> "BuildApp"
   ==> "BuildTest"
   ==> "RunTests"
+  ==> "BuildApp"
   ==> "Default"
 
 RunTargetOrDefault "Default"
