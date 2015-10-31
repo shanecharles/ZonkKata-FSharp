@@ -51,24 +51,6 @@ module Common =
                    n :: (nextDie (rem-1) avail')
         nextDie 6 pool
 
-    let zonkRoll () = 
-        let pool = [2; 2; 3; 3; 4; 4; 6; 6]
-        let rec nextDie rem avail =
-            match rem with 
-            | 1 -> avail 
-                |> Seq.groupBy (id) 
-                |> Seq.toArray 
-                |> Array.sortBy (fun (x,s) -> s |> Seq.length) 
-                |> Array.rev
-                |> Seq.take 1 
-                |> Seq.map (fun (x,_) -> x) 
-                |> Seq.toList
-            | _ -> 
-                let i = rand.Next(avail |> List.length)
-                let n = i |> List.nth avail
-                n :: (nextDie (rem-1) (removeNth avail i))
-        nextDie 6 pool
-
 type FourOfAKindWithNoExtraPoints =
     static member Roll() =
         let g = gen {
@@ -169,10 +151,13 @@ type ThreeOfAKindWithExtraPoints =
 
 type ZonkRoll = 
     static member Roll() =
-        let g = gen {
-            return Common.zonkRoll ()
-        }
-        g |> Arb.fromGen
+        let distinct4 = Seq.distinct >> Seq.length >> function 4 -> true | _ -> false
+        let lessThan3ofakind = Seq.groupBy id
+                               >> Seq.map (fun (x,s) -> x, s |> Seq.length)
+                               >> Seq.forall (fun (_,c) -> c < 3)
+        Gen.listOfLength 6 ([2; 3; 4; 6] |> Gen.elements)
+        |> Arb.fromGen
+        |> Arb.filter (fun r -> (r |> distinct4) && (r |> lessThan3ofakind))
 
 type ThreePairsRoll =
     static member Roll() =
