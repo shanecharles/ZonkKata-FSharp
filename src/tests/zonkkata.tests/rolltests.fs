@@ -1,4 +1,4 @@
-﻿namespace ZonkKata.Tests
+namespace ZonkKata.Tests
 
 open System
 open Xunit
@@ -50,6 +50,15 @@ module Common =
             | _ -> let (n, avail') = rand.Next(avail |> Seq.length) |> getAndRemoveNth avail
                    n :: (nextDie (rem-1) avail')
         nextDie 6 pool
+
+type Die =
+    static member Gen = Gen.choose (1,6)
+
+type NonScoringDie = 
+    static member Gen = Gen.elements [2; 3; 4; 6]
+
+type ScoringDie =
+    static member Gen = Gen.elements [1; 5]
 
 type FourOfAKindWithNoExtraPoints =
     static member Roll() =
@@ -155,7 +164,7 @@ type ZonkRoll =
         let lessThan3ofakind = Seq.groupBy id
                                >> Seq.map (fun (x,s) -> x, s |> Seq.length)
                                >> Seq.forall (fun (_,c) -> c < 3)
-        Gen.listOfLength 6 ([2; 3; 4; 6] |> Gen.elements)
+        Gen.listOfLength 6 NonScoringDie.Gen
         |> Arb.fromGen
         |> Arb.filter (fun r -> (r |> distinct4) && (r |> lessThan3ofakind))
 
