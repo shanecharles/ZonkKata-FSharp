@@ -119,14 +119,13 @@ type FiveOfAKindWithExtraPoints =
 type ThreeOfAKindWithAnotherThreeOfAKind =
     static member Roll() =
         let g = gen {
-            let! i1 = Gen.choose (0,5)
-            let! i2 = Gen.choose (0,4)
-            let (n, rest) = i1 |> Common.getAndRemoveNth [1 .. 6]
-            let m = i2 |> List.nth rest
+            let! n = Die.Gen
+            let! m = Die.Gen
             let roll = [n; n; n; m; m; m] |> Common.randomizeOrder
             return (n, m, roll)
         }
         g |> Arb.fromGen
+          |> Arb.filter (fun (n,m,_) -> if n = m then false else true)
 
 type ThreeOfAKindWithNoMorePoints =
     static member Roll() =
