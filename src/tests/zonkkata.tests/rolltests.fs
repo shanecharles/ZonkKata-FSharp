@@ -10,6 +10,9 @@ open FsCheck.Xunit
 module Common = 
     let rand = new Random()
 
+    let OfAKind size n = List.init size (fun _ -> n)
+    let HasOfAKind n = Seq.groupBy id >> Seq.map (fun (x,s) -> s |> Seq.length) >> Seq.exists (fun x -> x = n)
+    let NoPairWithFourOfAKind2or3 = function 2,r | 3,r -> r |> Seq.distinct |> Seq.length > 2 | _ -> true
     let excludeNumber n = seq { for i in 1..6 do if i <> n then yield i }
     let excludeNumbers ns = seq { for i in 1..6 do if ns |> List.forall (fun x -> x <> i) 
                                                    then yield i }
@@ -67,19 +70,13 @@ type FourOfAKindWithNoExtraPoints =
     static member Roll() =
         let g = gen {
             let! n = Die.Gen
-            let pool = [n; 1; 5] |> Common.excludeNumbers |> Seq.toList
-            let len = (pool |> Seq.length) - 1
-            let! i1 = Gen.choose (0, len)
-            let! i2 = Gen.choose (0, len)
-            let roll = (i1 |> List.nth pool) :: (i2 |> List.nth pool) :: (List.init 4 (fun _ -> n))
-                       |> Common.randomizeOrder
+            let! r = Gen.listOfLength 2 NonScoringDie.Gen
+            let roll = r @ (Common.OfAKind 4 n) |> Common.randomizeOrder
             return n,roll
         }
         g 
         |> Arb.fromGen
-        |> Arb.filter (fun (n,r) -> match n with 
-                                    | 2 | 3 -> r |> Seq.groupBy (id) |> Seq.length > 2
-                                    | _ -> true)
+        |> Arb.filter (fun (n,r) -> (r |> Common.HasOfAKind 4) && ((n,r) |> Common.NoPairWithFourOfAKind2or3))
 
 type FourOfAKindWithExtraPoints = 
     static member Roll() =
