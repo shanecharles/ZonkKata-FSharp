@@ -13,6 +13,11 @@ module Common =
     let OfAKind size n = List.init size (fun _ -> n)
     let HasOfAKind n = Seq.groupBy id >> Seq.map (fun (x,s) -> s |> Seq.length) >> Seq.exists (fun x -> x = n)
     let NoPairWithFourOfAKind2or3 = function 2,r | 3,r -> r |> Seq.distinct |> Seq.length > 2 | _ -> true
+    let HasExtraPoints = function
+                         | 1,r -> r |> Seq.exists (fun x -> x = 5)
+                         | 5,r -> r |> Seq.exists (fun x -> x = 1)
+                         | _,r -> r |> Seq.exists (fun x -> x = 1 || x = 5)
+
     let excludeNumber n = seq { for i in 1..6 do if i <> n then yield i }
     let excludeNumbers ns = seq { for i in 1..6 do if ns |> List.forall (fun x -> x <> i) 
                                                    then yield i }
@@ -81,21 +86,14 @@ type FourOfAKindWithNoExtraPoints =
 type FourOfAKindWithExtraPoints = 
     static member Roll() =
         let g = gen {
-            let! n = Gen.choose (1,6)
-            let pool = n |> Common.excludeNumber |> Seq.toList
-            let scoringDice = [1; 5] |> List.filter (fun x -> x <> n) 
-            let! i = Gen.choose (0, (scoringDice |> Seq.length) - 1)
-            let oneOrFive = i |> List.nth scoringDice
-            let! j = Gen.choose (0,4)
-            let last = j |> List.nth (n |> Common.excludeNumber |> Seq.toList)
-            let roll = oneOrFive :: last :: (List.init 4 (fun _ -> n))
+            let! n = Die.Gen
+            let! r = Gen.listOfLength 2 Die.Gen
+            let roll = r @ (Common.OfAKind 4 n) |> Common.randomizeOrder
             return n,roll
         }
         g 
         |> Arb.fromGen
-        |> Arb.filter (fun (n,r) -> match n with 
-                                    | 2 -> r |> Seq.groupBy (id) |> Seq.length > 2
-                                    | _ -> true)
+        |> Arb.filter Common.HasExtraPoints
 
 type FiveOfAKindWithNoExtraPoints = 
     static member Roll() =
