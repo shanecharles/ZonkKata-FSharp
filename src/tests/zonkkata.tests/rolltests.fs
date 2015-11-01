@@ -13,6 +13,7 @@ module Common =
     let OfAKind size n = List.init size (fun _ -> n)
     let HasOfAKind n = Seq.groupBy id >> Seq.map (fun (x,s) -> s |> Seq.length) >> Seq.exists (fun x -> x = n)
     let NoPairWithFourOfAKind2or3 = function 2,r | 3,r -> r |> Seq.distinct |> Seq.length > 2 | _ -> true
+    let AtLeastDistinct n roll = roll |> Seq.distinct |> Seq.length > n
     let HasExtraPoints = function
                          | 1,r -> r |> Seq.exists (fun x -> x = 5)
                          | 5,r -> r |> Seq.exists (fun x -> x = 1)
@@ -130,13 +131,13 @@ type ThreeOfAKindWithAnotherThreeOfAKind =
 type ThreeOfAKindWithNoMorePoints =
     static member Roll() =
         let g = gen {
-            let! n = Gen.choose (1,6)
-            let pool = [n; 1; 5] |> Common.excludeNumbers |> Seq.toList
-            let rest = pool @ pool |> Common.randomizeOrder |> Seq.take 3 |> Seq.toList
-            let roll = n :: n :: n :: rest |> Common.randomizeOrder
+            let! n = Die.Gen
+            let! r = Gen.listOfLength 3 NonScoringDie.Gen
+            let roll = r @ (Common.OfAKind 3 n) |> Common.randomizeOrder
             return (n, roll)
         } 
         g |> Arb.fromGen
+          |> Arb.filter (fun (n,r) -> r |> Common.HasOfAKind 3 && r |> Common.AtLeastDistinct 3)
 
 type ThreeOfAKindWithExtraPoints = 
     static member Roll() =
