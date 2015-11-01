@@ -142,16 +142,13 @@ type ThreeOfAKindWithNoMorePoints =
 type ThreeOfAKindWithExtraPoints = 
     static member Roll() =
         let g = gen {
-            let! n = Gen.choose (1,6)
-            let rest = n |> Common.excludeNumber |> Seq.toList
-            let pool = rest @ rest |> Common.randomizeOrder |> Seq.take 3 |> Seq.toList
-            let roll = n :: n :: n :: pool |> Common.randomizeOrder
+            let! n = Die.Gen
+            let! r = Gen.listOfLength 3 Die.Gen
+            let roll = r @ (Common.OfAKind 3 n) |> Common.randomizeOrder
             return (n, roll)
         }
         g |> Arb.fromGen
-          |> Arb.filter (fun (n, roll) -> 
-                            let scoring = [1; 5] |> List.filter (fun x -> x <> n)
-                            roll |> List.exists (fun x -> scoring |> List.exists (fun y -> y = x)))
+          |> Arb.filter Common.HasExtraPoints
 
 type ZonkRoll = 
     static member Roll() =
