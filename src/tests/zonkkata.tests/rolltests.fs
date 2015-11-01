@@ -98,14 +98,13 @@ type FourOfAKindWithExtraPoints =
 type FiveOfAKindWithNoExtraPoints = 
     static member Roll() =
         let g = gen {
-            let! n = Gen.choose (1,6)
-            let pool = [n; 1; 5] |> Common.excludeNumbers |> Seq.toList
-            let! i = Gen.choose (0, (pool |> Seq.length) - 1)
-            let last = i |> List.nth pool
-            let roll = last :: (List.init 5 (fun _ -> n)) |> Common.randomizeOrder
+            let! n = Die.Gen
+            let! r = NonScoringDie.Gen
+            let roll = r :: (Common.OfAKind 5 n) |> Common.randomizeOrder
             return n,roll
         }
         g |> Arb.fromGen
+          |> Arb.filter (fun (n,r) -> r |> Common.HasOfAKind 5)
 
 type FiveOfAKindWithExtraPoints = 
     static member Roll() = 
