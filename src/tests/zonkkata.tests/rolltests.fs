@@ -21,9 +21,12 @@ module Common =
 
     let randomizeOrder roll = 
         let rmem = roll |> List.toArray
+        let len = rmem.Length
         rmem
-        |> Array.iteri (fun i1 x -> let i2 = rand.Next(i1)
-                                    rmem.[i1] <- rmem.[i2]
+        |> Array.iteri (fun i1 _ -> let pos = (len - 1) - i1
+                                    let x = rmem.[pos]
+                                    let i2 = rand.Next(len - i1)
+                                    rmem.[pos] <- rmem.[i2]
                                     rmem.[i2] <- x)
         rmem |> Array.toList
 
@@ -208,6 +211,12 @@ module CommonTests =
     let ``Passing a list to the randomizer should randomize the list.`` () =
         let actual = [1 .. 6] |> Common.randomizeOrder
         test <@ [1 .. 6] <> actual @>
+
+    [<Fact>]
+    let ``Passing a list to the randomizer and sorting should return the same list.`` () =
+        let expected = [1 .. 6]
+        let actual = expected |> Common.randomizeOrder |> Seq.sortBy id |> Seq.toList
+        test <@ expected = actual @>
 
 module BigRoller =
     [<Property(Arbitrary = [| typeof<NonScoringDie> |])>]
