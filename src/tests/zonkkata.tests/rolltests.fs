@@ -156,6 +156,7 @@ type ZonkRoll =
         let lessThan3ofakind = Seq.groupBy id
                                >> Seq.map (fun (x,s) -> x, s |> Seq.length)
                                >> Seq.forall (fun (_,c) -> c < 3)
+        // Using Common.AtLeastDistinct causes a stack overflow exception o.O
         Gen.listOfLength 6 NonScoringDie.Gen
         |> Arb.fromGen
         |> Arb.filter (fun r -> (r |> distinct4) && (r |> lessThan3ofakind))
@@ -333,18 +334,6 @@ module BigRoller =
     let ``Five of a kind should return 3 times the three of a kind points.`` n =
         let expected = (n |> ZonkKata.Roll.ThreeOfAKindPoints) * 3
         let actual = n |> ZonkKata.Roll.FiveOfAKindPoints
-        test <@ expected = actual @>
-
-    [<Theory>]
-    [<InlineData(1)>]
-    [<InlineData(2)>]
-    [<InlineData(3)>]
-    [<InlineData(4)>]
-    [<InlineData(5)>]
-    [<InlineData(6)>]
-    let ``Six of a kind should return 4 times the three of a kind points.`` n =
-        let expected = (n |> ZonkKata.Roll.ThreeOfAKindPoints) * 4
-        let actual = n |> ZonkKata.Roll.SixOfAKindPoints
         test <@ expected = actual @>
 
     [<Fact>]
