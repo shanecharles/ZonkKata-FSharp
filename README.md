@@ -33,4 +33,5 @@ The object is to calculate the maximum score for a roll. A die can only be used 
 
 Running only the tests
 
+    > run-tests.cmd  // on Windows
     $ ./run-tests.sh // on unix
