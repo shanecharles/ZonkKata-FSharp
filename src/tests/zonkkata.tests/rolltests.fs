@@ -164,17 +164,13 @@ type ZonkRoll =
 type ThreePairsRoll =
     static member Roll() =
         let g = gen {
-            let choose l = Gen.choose (0 , l |> Seq.length)
-            let! i1 = Gen.choose (0, 5)
-            let! i2 = Gen.choose (0, 4)
-            let! i3 = Gen.choose (0, 3)
-            let (n1, l1) = Common.getAndRemoveNth [1 .. 6] i1
-            let (n2, l2) = Common.getAndRemoveNth l1 i2
-            let n3 = i3 |> List.nth l2
-
+            let! n1 = Die.Gen
+            let! n2 = Die.Gen
+            let! n3 = Die.Gen
             return [n1; n1; n2; n2; n3; n3]
         }
         g |> Arb.fromGen
+          |> Arb.filter (Seq.distinct >> Seq.length >> (fun x -> x = 3))
 
 type OneOrFiveRoll =
     static member Roll() =
