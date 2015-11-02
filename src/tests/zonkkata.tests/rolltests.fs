@@ -19,46 +19,13 @@ module Common =
                          | 5,r -> r |> Seq.exists (fun x -> x = 1)
                          | _,r -> r |> Seq.exists (fun x -> x = 1 || x = 5)
 
-    let excludeNumber n = seq { for i in 1..6 do if i <> n then yield i }
-    let excludeNumbers ns = seq { for i in 1..6 do if ns |> List.forall (fun x -> x <> i) 
-                                                   then yield i }
-    let removeNth l n = l 
-                        |> List.fold (fun (nth, i, acc) elem -> 
-                                        let acc' = match nth = i with 
-                                                   | true -> acc
-                                                   | _    -> elem :: acc
-                                        (nth, (i+1), acc')) (n, 0, [])
-                        |> (fun (_,_,l') -> l' |> List.rev)
-    
-    let getAndRemoveNth l n = (n |> List.nth l, n |> removeNth l)
-
     let randomizeOrder roll = 
-        let rec reorder rem =
-            match rem with 
-            | [] -> []
-            | _  -> let (n,rem') = rand.Next(rem |> List.length) |> getAndRemoveNth rem
-                    n :: (reorder rem')
-        reorder roll
-
-    let oneOrFiveRoll () =
-        let pool = [1 .. 6] @ [1 .. 6]
-        let rec nextDie rem avail =
-            match rem with 
-            | 1 -> avail
-                |> Seq.groupBy (id)
-                |> Seq.choose (fun (x,s) -> if s |> Seq.length > 1 then Some x else None)
-                |> Seq.toList
-                |> fun pairs -> match pairs with
-                                | [p] -> let dice = p |> excludeNumber |> Seq.toList
-                                         [rand.Next(dice |> List.length) |> List.nth dice]
-                                | _   -> 
-                                    let p = match pairs |> List.filter (fun x -> x = 1 || x = 5) |> List.sortBy (id) with
-                                            | [1; 5] -> [1; 5]
-                                            | _      -> pairs
-                                    [rand.Next(p |> List.length) |> List.nth p]
-            | _ -> let (n, avail') = rand.Next(avail |> Seq.length) |> getAndRemoveNth avail
-                   n :: (nextDie (rem-1) avail')
-        nextDie 6 pool
+        let rmem = roll |> List.toArray
+        rmem
+        |> Array.iteri (fun i1 x -> let i2 = rand.Next(i1)
+                                    rmem.[i1] <- rmem.[i2]
+                                    rmem.[i2] <- x)
+        rmem |> Array.toList
 
 type Die =
     static member Gen = Gen.choose (1,6)
@@ -175,9 +142,15 @@ type ThreePairsRoll =
 type OneOrFiveRoll =
     static member Roll() =
         let g = gen {
-            return Common.oneOrFiveRoll()
+            return! Gen.listOfLength 6 Die.Gen
         }
+        let byFreq = Seq.groupBy id >> Seq.map (fun (_,s) -> s |> Seq.length)
         g |> Arb.fromGen
+          |> Arb.filter (fun r -> let freq = r |> byFreq
+                                  r |> List.exists (fun x -> x = 1 || x = 5)
+                                  && freq |> Seq.forall (fun c -> c < 3)
+                                  && freq |> Seq.exists (fun c -> c <> 2)
+                                  && r |> Seq.distinct |> Seq.length |> (fun c -> c < 6))
 
 type FiveOfAKindWithExtraPointsPropertyAttribute () =
     inherit PropertyAttribute (
@@ -229,6 +202,12 @@ type RoyalRoll =
 type RoyalRollPropertyAttribute () =
     inherit PropertyAttribute (
         Arbitrary = [| typeof<RoyalRoll> |])
+
+module CommonTests =
+    [<Fact>]
+    let ``Passing a list to the randomizer should randomize the list.`` () =
+        let actual = [1 .. 6] |> Common.randomizeOrder
+        test <@ [1 .. 6] <> actual @>
 
 module BigRoller =
     [<Property(Arbitrary = [| typeof<NonScoringDie> |])>]
