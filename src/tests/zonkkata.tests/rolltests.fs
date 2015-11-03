@@ -296,30 +296,6 @@ module BigRoller =
         let actual = n |> ZonkKata.Roll.ThreeOfAKindPoints
         test <@ expected = actual @>
 
-    [<Theory>]
-    [<InlineData(1)>]
-    [<InlineData(2)>]
-    [<InlineData(3)>]
-    [<InlineData(4)>]
-    [<InlineData(5)>]
-    [<InlineData(6)>]
-    let ``Four of a kind should return 2 times the three of a kind points.`` n =
-        let expected = (n |> ZonkKata.Roll.ThreeOfAKindPoints) * 2
-        let actual = n |> ZonkKata.Roll.FourOfAKindPoints
-        test <@ expected = actual @>
-
-    [<Theory>]
-    [<InlineData(1)>]
-    [<InlineData(2)>]
-    [<InlineData(3)>]
-    [<InlineData(4)>]
-    [<InlineData(5)>]
-    [<InlineData(6)>]
-    let ``Five of a kind should return 3 times the three of a kind points.`` n =
-        let expected = (n |> ZonkKata.Roll.ThreeOfAKindPoints) * 3
-        let actual = n |> ZonkKata.Roll.FiveOfAKindPoints
-        test <@ expected = actual @>
-
     [<Fact>]
     let ``A roll with three of a kind of twos and no more points should return 200 points.`` () =
         let expected = 200
@@ -364,19 +340,19 @@ module BigRoller =
 
     [<FourOfAKindWithExtraPointsProperty>]
     let ``Four of a kind with extra points should return more than the four of a kind points.`` (n : int, roll : int list) =
-        let expected = n |> ZonkKata.Roll.FourOfAKindPoints
+        let expected = n |> ZonkKata.Roll.ThreeOfAKindPoints |> (*) 2
         let actual = roll |> ZonkKata.Roll.CalculatePoints
         test <@ expected < actual @>
 
     [<FiveOfAKindWithNoExtraPointsProperty>]
     let ``Five of a kind with no extra points should return three times the three of a kind points.`` (n : int, roll : int list) =
-        let expected = 3 * (n |> ZonkKata.Roll.ThreeOfAKindPoints)
+        let expected = n |> ZonkKata.Roll.ThreeOfAKindPoints |> (*) 3
         let actual = roll |> ZonkKata.Roll.CalculatePoints
         test <@ expected = actual @>
 
     [<FiveOfAKindWithExtraPointsProperty>]
     let ``Five of a kind with extra points should return more than the five of a kind points.`` (n : int, roll : int list) =
-        let expected = n |> ZonkKata.Roll.FiveOfAKindPoints
+        let expected = n |> ZonkKata.Roll.ThreeOfAKindPoints |> (*) 3
         let actual = roll |> ZonkKata.Roll.CalculatePoints
         test <@ expected < actual @>
 
