@@ -1,7 +1,11 @@
 module ZonkKata.Roll 
-let SingleDiePoints = function | 1 -> 100 | 5 -> 50 | _ -> 0
+let SingleDiePoints = function 1 -> 100 
+                             | 5 -> 50 
+                             | _ -> 0
 let ThreePairsPoints = 750
-let ThreeOfAKindPoints = function 1 -> 1000 | n -> n * 100
+let StraightPoints = 1000
+let ThreeOfAKindPoints = function 1 -> 1000 
+                                | n -> n * 100
 
 let GroupAndSortByFreq = Seq.groupBy id
                          >> Seq.map (fun (x,s) -> x, s |> Seq.length)
@@ -14,22 +18,29 @@ let FreqPoints = function
                  | x, 3            -> x |> ThreeOfAKindPoints
                  | x, c            -> x |> SingleDiePoints |> (*) c
 let SumFreqPoints = List.map FreqPoints >> List.sum
-let (|RolledStraight|_|) = Seq.length >> function | 6 -> Some () | _ -> None
-// Score more points by breaking up four of a kind of 2s or 3s and another pair, except 3s and pair of 1s.
-let (|RolledThreePairs|_|) = function
-                             | [(_,2); (_,2); (_,2)]      -> Some ()
-                             | [(2,4); (_,2)]             -> Some ()
-                             | [(3,4); (x,2)] when x <> 1 -> Some ()
-                             | _                          -> None
+let rollThreePairs = function
+                     | [(_,2); (_,2); (_,2)]      -> true
+                     | [(2,4); (_,2)]             -> true
+                     | [(3,4); (x,2)] when x <> 1 -> true
+                     | _                          -> false
 
-let CalculatePoints (roll : int list) = roll 
-                                        |> GroupAndSortByFreq
-                                        |> function
-                                        | RolledStraight   -> 1000
-                                        | RolledThreePairs -> ThreePairsPoints
-                                        | grpd             -> grpd |> SumFreqPoints
+let rollThreeOfKind = function (_,c) :: _ -> c >= 3
+                             | _          -> false
+let rollStraight = List.length >> ((=)6)
 
-let PrintPoints = CalculatePoints
-                  >> function
+let (|ThreePairs|Straight|ThreeOfKind|Points|) dice =
+    let grp = GroupAndSortByFreq dice
+    if   grp |> rollThreePairs  then ThreePairs
+    elif grp |> rollStraight    then Straight 
+    elif grp |> rollThreeOfKind then ThreeOfKind (grp |> SumFreqPoints)
+    else Points (grp |> SumFreqPoints)
+
+let CalculatePoints : int list -> int = function
+    | ThreePairs      -> ThreePairsPoints
+    | Straight        -> StraightPoints
+    | ThreeOfKind pts -> pts
+    | Points pts      -> pts
+
+let PrintPoints = CalculatePoints >> function
                   | 0   -> printfn "Zonk!"
                   | pts -> printfn "You rolled %i points." pts
